@@ -1,7 +1,17 @@
 bamfdetect
 ==========
 
-Identifies and extracts information from bots and other malware
+Identifies and extracts information from bots and other malware.  Information is returned in a readable json format.
+UPX compressed files are decompressed before the Yara signature is applied.
+
+Currently Supported Malware
+---------------------------
+ - Alina
+ - Dexter
+ - Herpesnet
+ - MadnessPro
+ - pBot
+ - ProjectHook
 
 <pre>cloud@strife:~/git/BAMF$ ./bamfdetect.py -h
 usage: ./bamfdetect.py [-h] [-v] [-d] [-r] [-l] [-m MODULE] [path [path ...]]
