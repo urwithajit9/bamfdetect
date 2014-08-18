@@ -11,6 +11,7 @@ Currently Supported Malware
 ---------------------------
  - Alina
  - BlackShades
+ - Dendroid
  - Dexter
  - Herpesnet
  - MadnessPro
