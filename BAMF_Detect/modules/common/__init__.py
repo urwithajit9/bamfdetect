@@ -52,6 +52,11 @@ class BinParseModule(object):
         return None
 
 
+class AndroidParseModule(BinParseModule):
+    def __init__(self, metadata):
+        BinParseModule.__init__(self, metadata, "Android")
+
+
 class PEParseModule(BinParseModule):
     def __init__(self, metadata):
         BinParseModule.__init__(self, metadata, "PE")
