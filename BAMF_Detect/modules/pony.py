@@ -1,13 +1,12 @@
 from common import Modules, data_strings, load_yara_rules, PEParseModule, ModuleMetadata, is_ip_or_domain
-from re import match
 
 
-class herpes(PEParseModule):
+class pony(PEParseModule):
     def __init__(self):
         md = ModuleMetadata(
-            module_name="herpes",
-            bot_name="Herpes Net",
-            description="Botnet that really makes your crotch itch",
+            module_name="pony",
+            bot_name="Pony",
+            description="",
             authors=["Brian Wallace (@botnet_hunter)"],
             version="1.0.0",
             date="April 14, 2014",
@@ -19,27 +18,29 @@ class herpes(PEParseModule):
 
     def _generate_yara_rules(self):
         if self.yara_rules is None:
-            self.yara_rules = load_yara_rules("herpes.yara")
+            self.yara_rules = load_yara_rules("pony.yara")
         return self.yara_rules
 
     def get_bot_information(self, file_data):
         results = {}
-        gate = None
-        server = None
+        uri = None
+        uris = []
+        all_uris = []
         for s in data_strings(file_data):
-            if s.find("run.php") != -1:
-                gate = s
             if s.startswith("http://") and len(s) > len("http://"):
                 domain = s[7:]
                 if domain.find('/') != -1:
                     domain = domain[:domain.find('/')]
                 if is_ip_or_domain(domain):
-                    server = s
-            if match(r'^\d\.\d\.\d$', s) is not None:
-                        results["version"] = s
-        if server is not None and gate is not None:
-            results["c2_uri"] = "%s%s" % (server, gate)
+                    all_uris.append(s)
+                    if s.endswith(".php"):
+                        uri = s
+                        uris.append(s)
+        if uri is not None and len(uris) > 0:
+            results["c2_uri"] = uri
+            results["c2_uris"] = list(set(uris))
+            results["all_uris"] = list(set(all_uris))
         return results
 
 
-Modules.list.append(herpes())
+Modules.list.append(pony())
