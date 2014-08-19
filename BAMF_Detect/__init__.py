@@ -2,8 +2,9 @@ from sys import path
 import BAMF_Detect.modules
 import BAMF_Detect.modules.common
 from os import listdir
-from os.path import isfile, isdir, join, abspath, dirname
+from os.path import isfile, isdir, join, abspath, dirname, getsize
 from pefile import PE
+from glob import iglob
 
 path.append(dirname(abspath(__file__)))
 
@@ -67,19 +68,25 @@ def scan_paths(paths, only_detect, recursive, module_filter):
     @param module_filter: if not None, only modules in list will be used
     @return: dictionary of file to dictionary of information for each file
     """
-    results = {}
     while len(paths) != 0:
         file_path = abspath(paths[0])
         del paths[0]
         if isfile(file_path):
-            with open(file_path, mode='rb') as file_handle:
-                file_content = file_handle.read()
-                r = scan_file_data(file_content, module_filter, only_detect)
-                if r is not None:
-                    results[file_path] = r
+            if getsize(file_path) < 1024 * 1024 * 1024:
+                with open(file_path, mode='rb') as file_handle:
+                    file_content = file_handle.read()
+                    r = scan_file_data(file_content, module_filter, only_detect)
+                    if r is not None:
+                        yield file_path, r
         elif isdir(file_path):
-            for p in listdir(file_path):
+            for p in iglob(join(file_path, "*")):
                 p = join(file_path, p)
-                if isfile(p) or (isdir(p) and recursive):
+                if isdir(p) and recursive:
                     paths.append(p)
-    return results
+                if isfile(p):
+                    if getsize(p) < 1024 * 1024 * 1024:
+                        with open(p, mode='rb') as file_handle:
+                            file_content = file_handle.read()
+                            r = scan_file_data(file_content, module_filter, only_detect)
+                            if r is not None:
+                                yield file_path, r

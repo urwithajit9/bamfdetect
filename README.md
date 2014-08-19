@@ -16,8 +16,8 @@ Currently Supported Malware
  - Herpesnet
  - MadnessPro
  - pBot
- - ProjectHook
  - Pony
+ - ProjectHook
  
 Module Development
 ------------------
