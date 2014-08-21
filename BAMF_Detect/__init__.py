@@ -1,15 +1,16 @@
 from sys import path
 import BAMF_Detect.modules
 import BAMF_Detect.modules.common
-from os import listdir
-from os.path import isfile, isdir, join, abspath, dirname
+from os.path import isfile, isdir, join, abspath, dirname, getsize
 from pefile import PE
+from glob import iglob
+from zipfile import is_zipfile, ZipFile
 
 path.append(dirname(abspath(__file__)))
 
 
 def get_version():
-    return "1.2.0"
+    return "1.3.0"
 
 
 def get_loaded_modules():
@@ -27,6 +28,8 @@ def scan_file_data(file_content, module_filter, only_detect):
     @param only_detect:
     @return:
     """
+    # todo consider modularized data preprocessors
+    # todo php deobfuscation preprocessor
     is_pe = False
     try:
         PE(data=file_content)
@@ -56,6 +59,34 @@ def scan_file_data(file_content, module_filter, only_detect):
     return None
 
 
+def handle_file(file_path, module_filter, only_detect, is_temp_file=False):
+    # todo add handling of archives
+    if is_zipfile(file_path):
+        # extract each file and handle it
+        # todo Add archive password support
+        try:
+            z = ZipFile(file_path)
+            for n in z.namelist():
+                data = z.read(n)
+                r = scan_file_data(data, module_filter, only_detect)
+                if r is not None:
+                    yield file_path + "," + n, r
+        except KeyboardInterrupt:
+            raise
+        except:
+            pass
+    else:
+        # assume we are dealing with a normal file
+        # todo Convert file handling to use file paths
+        if getsize(file_path) < 1024 * 1024 * 1024:
+            with open(file_path, mode='rb') as file_handle:
+                file_content = file_handle.read()
+                r = scan_file_data(file_content, module_filter, only_detect)
+                if r is not None:
+                    yield file_path, r
+    pass
+
+
 def scan_paths(paths, only_detect, recursive, module_filter):
     """
     Scans paths for known bots and dumps information from them
@@ -67,19 +98,17 @@ def scan_paths(paths, only_detect, recursive, module_filter):
     @param module_filter: if not None, only modules in list will be used
     @return: dictionary of file to dictionary of information for each file
     """
-    results = {}
     while len(paths) != 0:
         file_path = abspath(paths[0])
         del paths[0]
         if isfile(file_path):
-            with open(file_path, mode='rb') as file_handle:
-                file_content = file_handle.read()
-                r = scan_file_data(file_content, module_filter, only_detect)
-                if r is not None:
-                    results[file_path] = r
+            for fp, r in handle_file(file_path, module_filter, only_detect):
+                yield fp, r
         elif isdir(file_path):
-            for p in listdir(file_path):
+            for p in iglob(join(file_path, "*")):
                 p = join(file_path, p)
-                if isfile(p) or (isdir(p) and recursive):
+                if isdir(p) and recursive:
                     paths.append(p)
-    return results
+                if isfile(p):
+                    for fp, r in handle_file(p, module_filter, only_detect):
+                        yield fp, r

@@ -31,5 +31,9 @@ if __name__ == "__main__":
         if args.path is None or len(args.path) == 0:
             parser.print_help()
             exit()
-        results = BAMF_Detect.scan_paths(args.path, args.detect, args.recursive, args.module)
-        print json.dumps(results, sort_keys=True, indent=4, separators=(',', ': '))
+        print "{"
+        for file_path, result in BAMF_Detect.scan_paths(args.path, args.detect, args.recursive, args.module):
+            to_print = json.dumps({file_path: result}, sort_keys=True, indent=4, separators=(',', ': ')) + ","
+            for line in to_print.split("\n"):
+                print "    " + line
+        print "}"

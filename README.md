@@ -2,17 +2,29 @@ bamfdetect
 ==========
 
 Identifies and extracts information from bots and other malware.  Information is returned in a readable json format.
-UPX compressed files are decompressed before the Yara signature is applied.
+bamfdetect works by reading files into RAM, applying any applicable preprocessors, then applying Yara signatures from modules to determine which module it matches.
+After a match is located, the module can then extract the configuration from the file.
+
+Currently, only a preprocess for UPX files is supported.  This preprocessor writes the file data to a temporary file, then calls upx -d on the temporary file, and rereads the data from that temporary file.
 
 Currently Supported Malware
 ---------------------------
  - Alina
+ - BlackShades
+ - Dendroid
  - Dexter
  - Herpesnet
  - MadnessPro
  - pBot
+ - Pony
  - ProjectHook
-
+ 
+Module Development
+------------------
+Until I have time to write a guide for writing modules, please use existing modules as a means of writing your own.
+ 
+Usage
+-----
 <pre>cloud@strife:~/git/BAMF$ ./bamfdetect.py -h
 usage: ./bamfdetect.py [-h] [-v] [-d] [-r] [-l] [-m MODULE] [path [path ...]]
 
@@ -30,7 +42,7 @@ optional arguments:
   -m MODULE, --module MODULE
                         Modules to use, if not definedall modules are used
 
-./bamfdetect.py v1.2.0 by Brian Wallace (@botnet_hunter)
+./bamfdetect.py v1.3.0 by Brian Wallace (@botnet_hunter)
 </pre>
 
 
