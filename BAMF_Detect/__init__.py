@@ -10,7 +10,7 @@ path.append(dirname(abspath(__file__)))
 
 
 def get_version():
-    return "1.2.1"
+    return "1.3.0"
 
 
 def get_loaded_modules():
