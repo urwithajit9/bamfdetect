@@ -86,10 +86,6 @@ class alina(PEParseModule):
                 results["active_setup_persistence_name"] = ret[8]
                 results["mutex_name"] = ret[14]
                 results["c2_uri"] = "{0}:{1}".format(results["ip"], results["control_port"])
-        try:
-            json.dumps(results)
-        except:
-            print results
         return results
 
 
