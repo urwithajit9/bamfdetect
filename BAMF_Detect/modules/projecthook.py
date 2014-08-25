@@ -9,7 +9,7 @@ class projecthook(PEParseModule):
             bot_name="ProjectHook",
             description="Point of sale malware designed to extract credit card information from RAM",
             authors=["Brian Wallace (@botnet_hunter)"],
-            version="1.0.0",
+            version="1.1.0",
             date="August 9, 2014",
             references=[]
         )
@@ -27,9 +27,13 @@ class projecthook(PEParseModule):
         gate = None
         for s in data_strings_wide(file_data, charset=lowercase + uppercase + punctuation + digits):
             if s.endswith(".php"):
-                gate = s
+                if gate is None:
+                    gate = set()
+                gate.add(s)
         if gate is not None:
-            results["c2_uri"] = "{0}".format(gate)
+            results["c2s"] = []
+            for p in gate:
+                results["c2s"].append({"c2_uri": p})
         return results
 
 
