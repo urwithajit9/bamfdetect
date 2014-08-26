@@ -42,7 +42,7 @@ optional arguments:
   -m MODULE, --module MODULE
                         Modules to use, if not definedall modules are used
 
-./bamfdetect.py v1.3.0 by Brian Wallace (@botnet_hunter)
+./bamfdetect.py v1.4.0 by Brian Wallace (@botnet_hunter)
 </pre>
 
 
@@ -50,6 +50,7 @@ Requirements
 ------------
  - pefile (python module)
  - yara (python module)
+ - rarfile
  - upx (binary)
  
  

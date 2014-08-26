@@ -1,4 +1,4 @@
-from string import printable
+from string import printable, ascii_lowercase, ascii_uppercase, digits
 from yara import compile
 from os.path import dirname, join, abspath
 from pefile import PE
@@ -203,9 +203,12 @@ def is_ip_or_domain(s):
     # assume we have a domain now
     if s.find(".") == -1:
         return False
-    if s[s.rfind(".") + 1:].upper() in tlds:
-        return True
-    return False
+    if s[s.rfind(".") + 1:].upper() not in tlds:
+        return False
+    for c in s[:s.rfind(".")]:
+        if c not in ascii_lowercase + ascii_uppercase + digits + ":.-":
+            return False
+    return True
 
 
 def load_yara_rules(name):

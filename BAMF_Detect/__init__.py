@@ -2,15 +2,19 @@ from sys import path
 import BAMF_Detect.modules
 import BAMF_Detect.modules.common
 from os.path import isfile, isdir, join, abspath, dirname, getsize
+from os import write, close, remove
 from pefile import PE
 from glob import iglob
 from zipfile import is_zipfile, ZipFile
+from rarfile import is_rarfile, RarFile
+import tarfile
+from tempfile import mkstemp
 
 path.append(dirname(abspath(__file__)))
 
 
 def get_version():
-    return "1.3.0"
+    return "1.4.0"
 
 
 def get_loaded_modules():
@@ -59,18 +63,79 @@ def scan_file_data(file_content, module_filter, only_detect):
     return None
 
 
+def write_file_to_temp_file(file_data):
+    file_handle, path = mkstemp()
+    write(file_handle, file_data)
+    close(file_handle)
+    return path
+
+
 def handle_file(file_path, module_filter, only_detect, is_temp_file=False):
     # todo add handling of archives
     if is_zipfile(file_path):
         # extract each file and handle it
-        # todo Add archive password support
+        # todo consider adding archive password support
         try:
             z = ZipFile(file_path)
             for n in z.namelist():
                 data = z.read(n)
-                r = scan_file_data(data, module_filter, only_detect)
-                if r is not None:
-                    yield file_path + "," + n, r
+                new_path = write_file_to_temp_file(data)
+                for p, r in handle_file(new_path, module_filter, only_detect, is_temp_file=True):
+                    result_path = ""
+                    if is_temp_file:
+                        result_path = n
+                    else:
+                        result_path = file_path + "," + n
+                    if p is not None:
+                        result_path += "," + p
+                    yield result_path, r
+                remove(new_path)
+        except KeyboardInterrupt:
+            raise
+        except:
+            pass
+    elif tarfile.is_tarfile(file_path):
+        try:
+            with tarfile.open(file_path, 'r') as z:
+                for member in z.getmembers():
+                    try:
+                        data = z.extractfile(member).read()
+                        n = member.name
+                        new_path = write_file_to_temp_file(data)
+                        for p, r in handle_file(new_path, module_filter, only_detect, is_temp_file=True):
+                            result_path = ""
+                            if is_temp_file:
+                                result_path = n
+                            else:
+                                result_path = file_path + "," + n
+                            if p is not None:
+                                result_path += "," + p
+                            yield result_path, r
+                        remove(new_path)
+                    except KeyboardInterrupt:
+                        raise
+                    except:
+                        pass
+        except KeyboardInterrupt:
+            raise
+        except:
+            pass
+    elif is_rarfile(file_path):
+        try:
+            z = RarFile(file_path)
+            for n in z.namelist():
+                data = z.read(n)
+                new_path = write_file_to_temp_file(data)
+                for p, r in handle_file(new_path, module_filter, only_detect, is_temp_file=True):
+                    result_path = ""
+                    if is_temp_file:
+                        result_path = n
+                    else:
+                        result_path = file_path + "," + n
+                    if p is not None:
+                        result_path += "," + p
+                    yield result_path, r
+                remove(new_path)
         except KeyboardInterrupt:
             raise
         except:
@@ -83,7 +148,10 @@ def handle_file(file_path, module_filter, only_detect, is_temp_file=False):
                 file_content = file_handle.read()
                 r = scan_file_data(file_content, module_filter, only_detect)
                 if r is not None:
-                    yield file_path, r
+                    if is_temp_file:
+                        yield None, r
+                    else:
+                        yield file_path, r
     pass
 
 
