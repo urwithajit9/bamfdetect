@@ -10,6 +10,7 @@ Currently, only a preprocess for UPX files is supported.  This preprocessor writ
 Currently Supported Malware
 ---------------------------
  - Alina
+ - Andromeda
  - Backoff
  - BlackShades
  - Dendroid
