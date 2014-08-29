@@ -213,3 +213,28 @@ def is_ip_or_domain(s):
 
 def load_yara_rules(name):
     return compile(join(dirname(abspath(__file__)), "..", "yara", name))
+
+
+class RC4:
+    def swap(self):
+        t = self.state[self.i]
+        self.state[self.i] = self.state[self.j]
+        self.state[self.j] = t
+
+    def __init__(self, key):
+        self.state = [i for i in xrange(256)]
+
+        self.j = 0
+        for i in xrange(256):
+            self.i = i
+            self.j = (self.j + self.state[self.i] + ord(key[self.i % len(key)])) % 256
+            self.swap()
+
+        self.i = 0
+        self.j = 0
+
+    def next(self):
+        self.i = (self.i + 1) % 256
+        self.j = (self.j + self.state[self.i]) % 256
+        self.swap()
+        return self.state[(self.state[self.i] + self.state[self.j]) % 256]

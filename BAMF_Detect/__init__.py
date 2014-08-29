@@ -152,7 +152,6 @@ def handle_file(file_path, module_filter, only_detect, is_temp_file=False):
                         yield None, r
                     else:
                         yield file_path, r
-    pass
 
 
 def scan_paths(paths, only_detect, recursive, module_filter):

@@ -10,10 +10,12 @@ Currently, only a preprocess for UPX files is supported.  This preprocessor writ
 Currently Supported Malware
 ---------------------------
  - Alina
+ - Backoff
  - BlackShades
  - Dendroid
  - Dexter
  - Herpesnet
+ - Maazben
  - MadnessPro
  - pBot
  - Pony
