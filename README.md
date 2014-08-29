@@ -45,7 +45,7 @@ optional arguments:
   -m MODULE, --module MODULE
                         Modules to use, if not definedall modules are used
 
-./bamfdetect.py v1.4.0 by Brian Wallace (@botnet_hunter)
+./bamfdetect.py v1.4.1 by Brian Wallace (@botnet_hunter)
 </pre>
 
 
