@@ -10,10 +10,13 @@ Currently, only a preprocess for UPX files is supported.  This preprocessor writ
 Currently Supported Malware
 ---------------------------
  - Alina
+ - Andromeda
+ - Backoff
  - BlackShades
  - Dendroid
  - Dexter
  - Herpesnet
+ - Maazben
  - MadnessPro
  - pBot
  - Pony
@@ -42,7 +45,7 @@ optional arguments:
   -m MODULE, --module MODULE
                         Modules to use, if not definedall modules are used
 
-./bamfdetect.py v1.4.0 by Brian Wallace (@botnet_hunter)
+./bamfdetect.py v1.4.1 by Brian Wallace (@botnet_hunter)
 </pre>
 
 

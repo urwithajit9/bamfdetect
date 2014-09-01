@@ -37,8 +37,10 @@ class pony(PEParseModule):
                         uri = s
                         uris.append(s)
         if uri is not None and len(uris) > 0:
-            results["c2_uri"] = uri
-            results["c2_uris"] = list(set(uris))
+            if "c2s" not in results:
+                results["c2s"] = []
+            for i in uris:
+                results["c2s"].append({"c2_uri": i})
             results["all_uris"] = list(set(all_uris))
         return results
 

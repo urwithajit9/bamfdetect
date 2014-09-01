@@ -1,4 +1,5 @@
 from common import Modules, data_strings, load_yara_rules, PEParseModule, ModuleMetadata, is_ip_or_domain
+from pefile import PE
 
 
 class backoff(PEParseModule):
@@ -8,7 +9,7 @@ class backoff(PEParseModule):
             bot_name="Backoff",
             description="Point of sale malware designed to extract credit card information from RAM",
             authors=["Brian Wallace (@botnet_hunter)"],
-            version="1.0.0",
+            version="1.0.1",
             date="August 24, 2014",
             references=[]
         )
@@ -25,17 +26,19 @@ class backoff(PEParseModule):
         results = {}
         gate = None
         server = None
-        for s in data_strings(file_data):
-            if s.find(".php") != -1:
-                if s[0] != "/":
-                    s = "/" + s
-                if gate is None:
-                    gate = set()
-                gate.add(s)
-            if is_ip_or_domain(s):
-                if server is None:
-                    server = set()
-                server.add(s)
+        pe = PE(data=file_data)
+        for x in xrange(len(pe.sections)):
+            for s in data_strings(pe.get_data(pe.sections[x].VirtualAddress)):
+                if s.find(".php") != -1:
+                    if s[0] != "/":
+                        s = "/" + s
+                    if gate is None:
+                        gate = set()
+                    gate.add(s)
+                if is_ip_or_domain(s):
+                    if server is None:
+                        server = set()
+                    server.add(s)
         if server is not None and gate is not None:
             results["c2s"] = []
             for ip in server:
